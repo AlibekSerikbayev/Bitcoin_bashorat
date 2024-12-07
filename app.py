@@ -58,6 +58,3 @@ if st.button("Bashorat qilish"):
     })
     prediction = model.predict(input_data)[0]
     st.write(f"Kelajakdagi narx: ${prediction:.2f}")
-
-
-
