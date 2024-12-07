@@ -27,7 +27,7 @@
 # if __name__ == "__main__":
 #     main()
 
-
+#uzgarish
 
 import streamlit as st
 import pandas as pd
