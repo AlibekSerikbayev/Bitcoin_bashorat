@@ -1,108 +1,133 @@
 import streamlit as st
-import joblib
-import pandas as pd
-import re
-import datetime as dt
+import requests
 
-# DDoS modelni yuklash
-ddos_model = joblib.load('models/ddos_rf_model.pkl')
+# Streamlit interfeysi
+st.title("Sayt himoyasi: DDoS aniqlash va bloklash")
+st.write("Quyidagi funksiyalarni sinab ko'rishingiz mumkin.")
 
-# Bitcoin modelni yuklash
-bitcoin_model = joblib.load('bitcoin_model5.pkl')
+# So'rov yuborish
+ip_address = st.text_input("IP manzilni kiriting (bloklash uchun):")
 
-# DDoS uchun ustun nomlari
-ddos_encoded_column_names = [
-    'ip.src_192.168.1.1', 'ip.dst_192.168.1.2', 'frame.len', 'tcp.flags.push',
-    'ip.flags.df', 'Packets', 'Bytes', 'Tx Packets', 'Tx Bytes', 'Rx Packets', 'Rx Bytes'
-]
+if st.button("So'rov yuborish"):
+    try:
+        response = requests.get("http://127.0.0.1:5000")
+        st.write(response.json())
+    except Exception as e:
+        st.error(f"So'rovda xatolik: {e}")
 
-# Xabarlar tarixi
-ddos_message_history = []
+if st.button("IP-ni blokdan chiqarish"):
+    if ip_address.strip():
+        response = requests.post("http://127.0.0.1:5000/unblock", json={"ip_address": ip_address})
+        st.write(response.json())
+    else:
+        st.warning("Iltimos, IP manzilni kiriting!")
 
-# Eski xabarlarni tozalash
-def clean_ddos_message_history():
-    global ddos_message_history
-    now = dt.datetime.now()
-    ddos_message_history = [msg for msg in ddos_message_history if (now - msg['timestamp']).seconds < 60]
 
-# DDoS xabarini tahlil qilish
-def process_ddos_message(text):
-    ip_addresses = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', text)
-    if not ip_addresses:
-        return "IP manzillar topilmadi", None
+# import streamlit as st
+# import joblib
+# import pandas as pd
+# import re
+# import datetime as dt
 
-    frame_len = len(text)
-    packets = len(ip_addresses)
-    data = {
-        'ip.src_192.168.1.1': 1 if ip_addresses[0] == '192.168.1.1' else 0,
-        'ip.dst_192.168.1.2': 1 if len(ip_addresses) > 1 and ip_addresses[1] == '192.168.1.2' else 0,
-        'frame.len': frame_len,
-        'tcp.flags.push': 0,
-        'ip.flags.df': 1,
-        'Packets': packets,
-        'Bytes': frame_len * packets,
-        'Tx Packets': packets // 2,
-        'Tx Bytes': frame_len * (packets // 2),
-        'Rx Packets': packets // 2,
-        'Rx Bytes': frame_len * (packets // 2)
-    }
+# # DDoS modelni yuklash
+# ddos_model = joblib.load('models/ddos_rf_model.pkl')
 
-    user_data = pd.DataFrame([data], columns=ddos_encoded_column_names)
-    prediction = ddos_model.predict(user_data)[0]
-    return f"DDoS aniqlash: {'Hujum' if prediction == 1 else 'Xavfsiz'}", prediction
+# # Bitcoin modelni yuklash
+# bitcoin_model = joblib.load('bitcoin_model5.pkl')
 
-# Ilova interfeysi
-st.title("DDoS Aniqlash va Bitcoin Narx Bashorati")
+# # DDoS uchun ustun nomlari
+# ddos_encoded_column_names = [
+#     'ip.src_192.168.1.1', 'ip.dst_192.168.1.2', 'frame.len', 'tcp.flags.push',
+#     'ip.flags.df', 'Packets', 'Bytes', 'Tx Packets', 'Tx Bytes', 'Rx Packets', 'Rx Bytes'
+# ]
 
-# Navigatsiya
-app_mode = st.sidebar.selectbox("Tanlang:", ["DDoS Aniqlash", "Bitcoin Narxi Bashorati"])
+# # Xabarlar tarixi
+# ddos_message_history = []
 
-if app_mode == "DDoS Aniqlash":
-    st.header("DDoS Aniqlash Interfeysi")
-    st.write("Xabar matnini kiriting va model orqali DDoS aniqlashni tekshiring.")
+# # Eski xabarlarni tozalash
+# def clean_ddos_message_history():
+#     global ddos_message_history
+#     now = dt.datetime.now()
+#     ddos_message_history = [msg for msg in ddos_message_history if (now - msg['timestamp']).seconds < 60]
 
-    ddos_text_input = st.text_area("Xabar matni", placeholder="Xabarni bu yerga kiriting...")
-    ddos_user_id = st.text_input("Foydalanuvchi ID", value="12345")
+# # DDoS xabarini tahlil qilish
+# def process_ddos_message(text):
+#     ip_addresses = re.findall(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', text)
+#     if not ip_addresses:
+#         return "IP manzillar topilmadi", None
 
-    if st.button("DDoS Aniqlash"):
-        if ddos_text_input.strip():
-            result, prediction = process_ddos_message(ddos_text_input)
-            st.write(result)
+#     frame_len = len(text)
+#     packets = len(ip_addresses)
+#     data = {
+#         'ip.src_192.168.1.1': 1 if ip_addresses[0] == '192.168.1.1' else 0,
+#         'ip.dst_192.168.1.2': 1 if len(ip_addresses) > 1 and ip_addresses[1] == '192.168.1.2' else 0,
+#         'frame.len': frame_len,
+#         'tcp.flags.push': 0,
+#         'ip.flags.df': 1,
+#         'Packets': packets,
+#         'Bytes': frame_len * packets,
+#         'Tx Packets': packets // 2,
+#         'Tx Bytes': frame_len * (packets // 2),
+#         'Rx Packets': packets // 2,
+#         'Rx Bytes': frame_len * (packets // 2)
+#     }
 
-            if prediction is not None:
-                ddos_message_history.append({
-                    'timestamp': dt.datetime.now(),
-                    'text': ddos_text_input,
-                    'prediction': prediction,
-                    'user_id': ddos_user_id
-                })
-                clean_ddos_message_history()
+#     user_data = pd.DataFrame([data], columns=ddos_encoded_column_names)
+#     prediction = ddos_model.predict(user_data)[0]
+#     return f"DDoS aniqlash: {'Hujum' if prediction == 1 else 'Xavfsiz'}", prediction
 
-            st.subheader("Xabarlar tarixi")
-            st.write(pd.DataFrame(ddos_message_history))
-        else:
-            st.warning("Iltimos, xabar matnini kiriting!")
+# # Ilova interfeysi
+# st.title("DDoS Aniqlash va Bitcoin Narx Bashorati")
 
-elif app_mode == "Bitcoin Narxi Bashorati":
-    st.header("Bitcoin Narxi Bashorati")
-    st.write("Kelajakdagi Bitcoin narxini bashorat qiling.")
+# # Navigatsiya
+# app_mode = st.sidebar.selectbox("Tanlang:", ["DDoS Aniqlash", "Bitcoin Narxi Bashorati"])
 
-    # Foydalanuvchi kiritishi uchun form
-    open_price = st.number_input("Open narxi:", min_value=0.0)
-    high_price = st.number_input("High narxi:", min_value=0.0)
-    low_price = st.number_input("Low narxi:", min_value=0.0)
-    volume = st.number_input("Volume:", min_value=0.0)
+# if app_mode == "DDoS Aniqlash":
+#     st.header("DDoS Aniqlash Interfeysi")
+#     st.write("Xabar matnini kiriting va model orqali DDoS aniqlashni tekshiring.")
 
-    # Bashorat qilish
-    if st.button("Bashorat qilish"):
-        input_data = pd.DataFrame({
-            'Open': [open_price],
-            'High': [high_price],
-            'Low': [low_price],
-            'Volume': [volume]
-        })
-        prediction = bitcoin_model.predict(input_data)[0]
-        st.write(f"Kelajakdagi narx: ${prediction:.2f}")
+#     ddos_text_input = st.text_area("Xabar matni", placeholder="Xabarni bu yerga kiriting...")
+#     ddos_user_id = st.text_input("Foydalanuvchi ID", value="12345")
+
+#     if st.button("DDoS Aniqlash"):
+#         if ddos_text_input.strip():
+#             result, prediction = process_ddos_message(ddos_text_input)
+#             st.write(result)
+
+#             if prediction is not None:
+#                 ddos_message_history.append({
+#                     'timestamp': dt.datetime.now(),
+#                     'text': ddos_text_input,
+#                     'prediction': prediction,
+#                     'user_id': ddos_user_id
+#                 })
+#                 clean_ddos_message_history()
+
+#             st.subheader("Xabarlar tarixi")
+#             st.write(pd.DataFrame(ddos_message_history))
+#         else:
+#             st.warning("Iltimos, xabar matnini kiriting!")
+
+# elif app_mode == "Bitcoin Narxi Bashorati":
+#     st.header("Bitcoin Narxi Bashorati")
+#     st.write("Kelajakdagi Bitcoin narxini bashorat qiling.")
+
+#     # Foydalanuvchi kiritishi uchun form
+#     open_price = st.number_input("Open narxi:", min_value=0.0)
+#     high_price = st.number_input("High narxi:", min_value=0.0)
+#     low_price = st.number_input("Low narxi:", min_value=0.0)
+#     volume = st.number_input("Volume:", min_value=0.0)
+
+#     # Bashorat qilish
+#     if st.button("Bashorat qilish"):
+#         input_data = pd.DataFrame({
+#             'Open': [open_price],
+#             'High': [high_price],
+#             'Low': [low_price],
+#             'Volume': [volume]
+#         })
+#         prediction = bitcoin_model.predict(input_data)[0]
+#         st.write(f"Kelajakdagi narx: ${prediction:.2f}")
 
 
 
