@@ -1,10 +1,10 @@
-import streamlit as st
-import cv2
-import face_recognition
-import numpy as np
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
-import pandas as pd
-import joblib
+# import streamlit as st
+# import cv2
+# import face_recognition
+# import numpy as np
+# from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
+# import pandas as pd
+# import joblib
 # from captcha.image import ImageCaptcha
 # import random
 # import string
