@@ -1,7 +1,5 @@
 pandas
 streamlit
 joblib
-scikit-learn
-numpy
-requests
-ImageCaptcha
+captcha
+Pillow
