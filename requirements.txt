@@ -1,7 +1,6 @@
 streamlit
 opencv-python
 face_recognition
-streamlit-webrtc
 pandas
 joblib
 captcha
