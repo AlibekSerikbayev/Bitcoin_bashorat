@@ -1,5 +1,2 @@
 streamlit
-pandas
-joblib
-captcha
-numpy
+requests

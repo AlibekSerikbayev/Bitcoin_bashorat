@@ -110,61 +110,61 @@
 #             st.success(f"CAPTCHA to'g'ri! Kelajakdagi narx: ${prediction:.2f}")
 
 
-import streamlit as st
-import pandas as pd
-import joblib
-from captcha.image import ImageCaptcha
-import random
-import string
+# import streamlit as st
+# import pandas as pd
+# import joblib
+# from captcha.image import ImageCaptcha
+# import random
+# import string
 
-# Modelni yuklash
-model = joblib.load('bitcoin_model5.pkl')
+# # Modelni yuklash
+# model = joblib.load('bitcoin_model5.pkl')
 
-# CAPTCHA yaratish funksiyasi
-def generate_captcha():
-    image_captcha = ImageCaptcha(width=280, height=90)
-    captcha_text = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
-    image = image_captcha.generate_image(captcha_text)
-    return captcha_text, image
+# # CAPTCHA yaratish funksiyasi
+# def generate_captcha():
+#     image_captcha = ImageCaptcha(width=280, height=90)
+#     captcha_text = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+#     image = image_captcha.generate_image(captcha_text)
+#     return captcha_text, image
 
-# CAPTCHA tekshirish funksiyasi
-def verify_captcha(user_input, actual_captcha):
-    return user_input.strip().upper() == actual_captcha
+# # CAPTCHA tekshirish funksiyasi
+# def verify_captcha(user_input, actual_captcha):
+#     return user_input.strip().upper() == actual_captcha
 
-# Streamlit interfeysi
-st.title("Bitcoin Narxi Bashorati")
-st.write("Kelajakdagi Bitcoin narxini bashorat qiling")
+# # Streamlit interfeysi
+# st.title("Bitcoin Narxi Bashorati")
+# st.write("Kelajakdagi Bitcoin narxini bashorat qiling")
 
-# CAPTCHA sessiya holatida saqlanadi
-if "captcha_text" not in st.session_state:
-    st.session_state.captcha_text, st.session_state.captcha_image = generate_captcha()
+# # CAPTCHA sessiya holatida saqlanadi
+# if "captcha_text" not in st.session_state:
+#     st.session_state.captcha_text, st.session_state.captcha_image = generate_captcha()
 
-# CAPTCHA-ni interfeysda ko'rsatish
-st.image(st.session_state.captcha_image, caption="Quyidagi matnni kiriting:")
-captcha_input = st.text_input("CAPTCHA-ni kiriting:")
+# # CAPTCHA-ni interfeysda ko'rsatish
+# st.image(st.session_state.captcha_image, caption="Quyidagi matnni kiriting:")
+# captcha_input = st.text_input("CAPTCHA-ni kiriting:")
 
-# Foydalanuvchi kiritishi uchun form
-open_price = st.number_input("Open narxi:", min_value=0.0)
-high_price = st.number_input("High narxi:", min_value=0.0)
-low_price = st.number_input("Low narxi:", min_value=0.0)
-volume = st.number_input("Volume:", min_value=0.0)
+# # Foydalanuvchi kiritishi uchun form
+# open_price = st.number_input("Open narxi:", min_value=0.0)
+# high_price = st.number_input("High narxi:", min_value=0.0)
+# low_price = st.number_input("Low narxi:", min_value=0.0)
+# volume = st.number_input("Volume:", min_value=0.0)
 
-# CAPTCHA tekshirish natijasi
-captcha_valid = verify_captcha(captcha_input, st.session_state.captcha_text)
+# # CAPTCHA tekshirish natijasi
+# captcha_valid = verify_captcha(captcha_input, st.session_state.captcha_text)
 
-# Bashorat qilish
-if st.button("Bashorat qilish"):
-    if not captcha_valid:
-        st.error("CAPTCHA noto‘g‘ri! Iltimos, qaytadan urinib ko‘ring.")
-    else:
-        input_data = pd.DataFrame({
-            'Open': [open_price],
-            'High': [high_price],
-            'Low': [low_price],
-            'Volume': [volume]
-        })
-        prediction = model.predict(input_data)[0]
-        st.success(f"CAPTCHA to'g'ri! Kelajakdagi narx: ${prediction:.2f}")
+# # Bashorat qilish
+# if st.button("Bashorat qilish"):
+#     if not captcha_valid:
+#         st.error("CAPTCHA noto‘g‘ri! Iltimos, qaytadan urinib ko‘ring.")
+#     else:
+#         input_data = pd.DataFrame({
+#             'Open': [open_price],
+#             'High': [high_price],
+#             'Low': [low_price],
+#             'Volume': [volume]
+#         })
+#         prediction = model.predict(input_data)[0]
+#         st.success(f"CAPTCHA to'g'ri! Kelajakdagi narx: ${prediction:.2f}")
 
 
 
@@ -224,29 +224,29 @@ if st.button("Bashorat qilish"):
 
 
 
-# import streamlit as st
-# import requests
+import streamlit as st
+import requests
 
-# # Streamlit interfeysi
-# st.title("Sayt himoyasi: DDoS aniqlash va bloklash")
-# st.write("Quyidagi funksiyalarni sinab ko'rishingiz mumkin.")
+# Streamlit interfeysi
+st.title("Sayt himoyasi: DDoS aniqlash va bloklash")
+st.write("Quyidagi funksiyalarni sinab ko'rishingiz mumkin.")
 
-# # So'rov yuborish
-# ip_address = st.text_input("IP manzilni kiriting (bloklash uchun):")
+# So'rov yuborish
+ip_address = st.text_input("IP manzilni kiriting (bloklash uchun):")
 
-# if st.button("So'rov yuborish"):
-#     try:
-#         response = requests.get("http://127.0.0.1:5000")
-#         st.write(response.json())
-#     except Exception as e:
-#         st.error(f"So'rovda xatolik: {e}")
+if st.button("So'rov yuborish"):
+    try:
+        response = requests.get("http://127.0.0.1:5000")
+        st.write(response.json())
+    except Exception as e:
+        st.error(f"So'rovda xatolik: {e}")
 
-# if st.button("IP-ni blokdan chiqarish"):
-#     if ip_address.strip():
-#         response = requests.post("http://127.0.0.1:5000/unblock", json={"ip_address": ip_address})
-#         st.write(response.json())
-#     else:
-#         st.warning("Iltimos, IP manzilni kiriting!")
+if st.button("IP-ni blokdan chiqarish"):
+    if ip_address.strip():
+        response = requests.post("http://127.0.0.1:5000/unblock", json={"ip_address": ip_address})
+        st.write(response.json())
+    else:
+        st.warning("Iltimos, IP manzilni kiriting!")
 
 
 # import streamlit as st
