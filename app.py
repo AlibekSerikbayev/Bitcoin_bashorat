@@ -110,72 +110,12 @@
 #             st.success(f"CAPTCHA to'g'ri! Kelajakdagi narx: ${prediction:.2f}")
 
 
-# import streamlit as st
-# import pandas as pd
-# import joblib
-# from captcha.image import ImageCaptcha
-# import random
-# import string
-
-# # Modelni yuklash
-# model = joblib.load('bitcoin_model5.pkl')
-
-# # CAPTCHA yaratish funksiyasi
-# def generate_captcha():
-#     image_captcha = ImageCaptcha(width=280, height=90)
-#     captcha_text = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
-#     image = image_captcha.generate_image(captcha_text)
-#     return captcha_text, image
-
-# # CAPTCHA tekshirish funksiyasi
-# def verify_captcha(user_input, actual_captcha):
-#     return user_input.strip().upper() == actual_captcha
-
-# # Streamlit interfeysi
-# st.title("Bitcoin Narxi Bashorati")
-# st.write("Kelajakdagi Bitcoin narxini bashorat qiling")
-
-# # CAPTCHA sessiya holatida saqlanadi
-# if "captcha_text" not in st.session_state:
-#     st.session_state.captcha_text, st.session_state.captcha_image = generate_captcha()
-
-# # CAPTCHA-ni interfeysda ko'rsatish
-# st.image(st.session_state.captcha_image, caption="Quyidagi matnni kiriting:")
-# captcha_input = st.text_input("CAPTCHA-ni kiriting:")
-
-# # Foydalanuvchi kiritishi uchun form
-# open_price = st.number_input("Open narxi:", min_value=0.0)
-# high_price = st.number_input("High narxi:", min_value=0.0)
-# low_price = st.number_input("Low narxi:", min_value=0.0)
-# volume = st.number_input("Volume:", min_value=0.0)
-
-# # CAPTCHA tekshirish natijasi
-# captcha_valid = verify_captcha(captcha_input, st.session_state.captcha_text)
-
-# # Bashorat qilish
-# if st.button("Bashorat qilish"):
-#     if not captcha_valid:
-#         st.error("CAPTCHA noto‘g‘ri! Iltimos, qaytadan urinib ko‘ring.")
-#     else:
-#         input_data = pd.DataFrame({
-#             'Open': [open_price],
-#             'High': [high_price],
-#             'Low': [low_price],
-#             'Volume': [volume]
-#         })
-#         prediction = model.predict(input_data)[0]
-#         st.success(f"CAPTCHA to'g'ri! Kelajakdagi narx: ${prediction:.2f}")
-
-
-
 import streamlit as st
 import pandas as pd
 import joblib
 from captcha.image import ImageCaptcha
 import random
 import string
-from io import BytesIO
-from PIL import Image
 
 # Modelni yuklash
 model = joblib.load('bitcoin_model1.pkl')
@@ -191,9 +131,17 @@ def generate_captcha():
 def verify_captcha(user_input, actual_captcha):
     return user_input.strip().upper() == actual_captcha
 
-# Interfeys
+# Streamlit interfeysi
 st.title("Bitcoin Narxi Bashorati")
 st.write("Kelajakdagi Bitcoin narxini bashorat qiling")
+
+# CAPTCHA sessiya holatida saqlanadi
+if "captcha_text" not in st.session_state:
+    st.session_state.captcha_text, st.session_state.captcha_image = generate_captcha()
+
+# CAPTCHA-ni interfeysda ko'rsatish
+st.image(st.session_state.captcha_image, caption="Quyidagi matnni kiriting:")
+captcha_input = st.text_input("CAPTCHA-ni kiriting:")
 
 # Foydalanuvchi kiritishi uchun form
 open_price = st.number_input("Open narxi:", min_value=0.0)
@@ -201,16 +149,12 @@ high_price = st.number_input("High narxi:", min_value=0.0)
 low_price = st.number_input("Low narxi:", min_value=0.0)
 volume = st.number_input("Volume:", min_value=0.0)
 
-# CAPTCHA yaratish
-captcha_text, captcha_image = generate_captcha()
-st.image(captcha_image, caption="Quyidagi matnni kiriting:")
-captcha_input = st.text_input("CAPTCHA-ni kiriting:")
+# CAPTCHA tekshirish natijasi
+captcha_valid = verify_captcha(captcha_input, st.session_state.captcha_text)
 
 # Bashorat qilish
 if st.button("Bashorat qilish"):
-    if not captcha_input:
-        st.warning("Iltimos, CAPTCHA-ni kiriting!")
-    elif not verify_captcha(captcha_input, captcha_text):
+    if not captcha_valid:
         st.error("CAPTCHA noto‘g‘ri! Iltimos, qaytadan urinib ko‘ring.")
     else:
         input_data = pd.DataFrame({
@@ -220,7 +164,63 @@ if st.button("Bashorat qilish"):
             'Volume': [volume]
         })
         prediction = model.predict(input_data)[0]
-        st.write(f"Kelajakdagi narx: ${prediction:.2f}")
+        st.success(f"CAPTCHA to'g'ri! Kelajakdagi narx: ${prediction:.2f}")
+
+
+
+# import streamlit as st
+# import pandas as pd
+# import joblib
+# from captcha.image import ImageCaptcha
+# import random
+# import string
+# from io import BytesIO
+# from PIL import Image
+
+# # Modelni yuklash
+# model = joblib.load('bitcoin_model1.pkl')
+
+# # CAPTCHA yaratish funksiyasi
+# def generate_captcha():
+#     image_captcha = ImageCaptcha(width=280, height=90)
+#     captcha_text = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+#     image = image_captcha.generate_image(captcha_text)
+#     return captcha_text, image
+
+# # CAPTCHA tekshirish funksiyasi
+# def verify_captcha(user_input, actual_captcha):
+#     return user_input.strip().upper() == actual_captcha
+
+# # Interfeys
+# st.title("Bitcoin Narxi Bashorati")
+# st.write("Kelajakdagi Bitcoin narxini bashorat qiling")
+
+# # Foydalanuvchi kiritishi uchun form
+# open_price = st.number_input("Open narxi:", min_value=0.0)
+# high_price = st.number_input("High narxi:", min_value=0.0)
+# low_price = st.number_input("Low narxi:", min_value=0.0)
+# volume = st.number_input("Volume:", min_value=0.0)
+
+# # CAPTCHA yaratish
+# captcha_text, captcha_image = generate_captcha()
+# st.image(captcha_image, caption="Quyidagi matnni kiriting:")
+# captcha_input = st.text_input("CAPTCHA-ni kiriting:")
+
+# # Bashorat qilish
+# if st.button("Bashorat qilish"):
+#     if not captcha_input:
+#         st.warning("Iltimos, CAPTCHA-ni kiriting!")
+#     elif not verify_captcha(captcha_input, captcha_text):
+#         st.error("CAPTCHA noto‘g‘ri! Iltimos, qaytadan urinib ko‘ring.")
+#     else:
+#         input_data = pd.DataFrame({
+#             'Open': [open_price],
+#             'High': [high_price],
+#             'Low': [low_price],
+#             'Volume': [volume]
+#         })
+#         prediction = model.predict(input_data)[0]
+#         st.write(f"Kelajakdagi narx: ${prediction:.2f}")
 
 
 
