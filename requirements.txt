@@ -1,5 +1,6 @@
 streamlit
 pandas
-joblib
+joblib==1.0
 captcha
 numpy
+scikit-learn==0.24
