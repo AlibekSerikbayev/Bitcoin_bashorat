@@ -178,7 +178,7 @@ from io import BytesIO
 from PIL import Image
 
 # Modelni yuklash
-model = joblib.load('bitcoin_model5.pkl')
+model = joblib.load('bitcoin_model1.pkl')
 
 # CAPTCHA yaratish funksiyasi
 def generate_captcha():
